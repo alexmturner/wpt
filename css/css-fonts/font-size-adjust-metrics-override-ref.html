@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<link rel="help" href="https://www.w3.org/TR/css-fonts-5/#font-size-adjust-prop">
+<meta name="assert" content="Tests the simultaneous use of font-size-adjust and metrics override descriptorof of @font-face">
+<title>CSS Test: font-size-adjust and font metrics override of @font-face</title>
+<style>
+@font-face {
+  font-family: Ahem;
+  src: local(Ahem), url(/fonts/Ahem.ttf);
+  size-adjust: 200%;
+}
+
+.target {
+  font: 20px Ahem;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 60px;
+  height: 30px;
+}
+
+.top-aligned {
+  display: inline-block;
+  background-color: green;
+  width: 1em;
+  height: 1em; /* Same as the overridden ascent */
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.character {
+  display: inline-block;
+  background-color: green;
+  width: 2em;  /* Double-size of an 'X' in Ahem */
+  height: 2em; /* Double-size of an 'X' in Ahem */
+  position: absolute;
+  top: 0.4em; /* Two times of difference between the overridden ascent and the origianl ascent */
+  left: 1em;
+}
+
+.bottom-aligned {
+  display: inline-block;
+  background-color: green;
+  width: 1em;
+  height: 0.5em; /* Same as the overridden descent */
+  position: absolute;
+  top: 2.5em;
+  left: 3em;
+}
+
+</style>
+<div class="target">
+  <span class="top-aligned"></span><span class="character"></span><span class="bottom-aligned"></span>
+</div>
