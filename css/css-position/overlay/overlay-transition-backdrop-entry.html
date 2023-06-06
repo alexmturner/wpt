@@ -1,0 +1,23 @@
+3<!DOCTYPE html>
+<title>CSS Position Test: overlay transition with ::backdrop during entry animation</title>
+<link rel="help" href="https://drafts.csswg.org/css-position-4/#overlay">
+<link rel="match" href="green-ref.html">
+<style>
+  body {
+    background-color: green;
+  }
+  [popover] {
+    display: block;
+    visibility: hidden;
+    transition-delay: 60s;
+    transition-property: overlay;
+    transition-duration: 60s;
+  }
+  [popover]::backdrop {
+    background-color: blue;
+  }
+</style>
+<div popover id="foo"></div>
+<script>
+  foo.showPopover();
+</script>
