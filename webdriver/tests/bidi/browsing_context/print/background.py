@@ -1,12 +1,9 @@
 import base64
 import pytest
 
-from tests.support.image import px_to_cm
 from tests.support.pdf import assert_pdf
 
-
 pytestmark = pytest.mark.asyncio
-
 
 INLINE_BACKGROUND_RENDERING_TEST_CONTENT = """
 <style>
@@ -39,8 +36,7 @@ async def test_background(
 ):
     page = inline(INLINE_BACKGROUND_RENDERING_TEST_CONTENT)
     await bidi_session.browsing_context.navigate(
-        context=top_context["context"], url=page, wait="complete"
-    )
+        context=top_context["context"], url=page, wait="complete")
 
     print_value = await bidi_session.browsing_context.print(
         context=top_context["context"],
@@ -52,8 +48,8 @@ async def test_background(
             "left": 0
         },
         page={
-            "width": px_to_cm(96),
-            "height": px_to_cm(96),
+            "width": 2.54,
+            "height": 2.54,
         },
     )
 
