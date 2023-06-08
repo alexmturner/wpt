@@ -1,7 +1,9 @@
 <!doctype html>
 <title>img parse a sizes attribute: sizes=auto</title>
+<link rel="help" href="https://html.spec.whatwg.org/multipage/images.html#parse-a-sizes-attribute">
 <script src="/resources/testharness.js"></script>
 <script src="/resources/testharnessreport.js"></script>
+<script src="/common/rendering-utils.js"></script>
 <style>
 img { height: 10px; } /* Keep all images in the viewport, so lazy images load */
 #narrow-div { width: 10px; }
@@ -16,42 +18,52 @@ img { height: 10px; } /* Keep all images in the viewport, so lazy images load */
 <script>
 "use strict";
 
-// https://github.com/web-platform-tests/rfcs/pull/75
-let async_promise_test = (promise, description) => {
-  async_test(test => {
-    promise(test)
-      .then(() => {test.done();})
-      .catch(test.step_func(error => { throw error; }));
-  }, description);
-};
-
 function check(imgOrPicture) {
   let img = imgOrPicture;
+  let test = async_test(imgOrPicture.outerHTML);
+
   let source;
   if (imgOrPicture.localName === 'picture') {
     source = imgOrPicture.firstChild;
     img = imgOrPicture.lastChild;
   }
+
   const ref = document.getElementById(img.dataset.ref);
-  async_promise_test(async (t) => {
-    let expect = ref.currentSrc;
-    if (expect) {
-      expect = expect.split('?')[0];
-    }
+  let expect = ref.currentSrc;
+  if (expect) {
+    expect = expect.split('?')[0];
+  }
+
+  test.step(_ => {
     if (expect === '' || expect === null || expect === undefined) {
       assert_unreached('ref currentSrc was ' + format_value(expect));
     }
-    await new Promise((resolve, reject) => {
-      img.onload = resolve;
-      img.onerror = reject;
+  });
+
+  img.addEventListener('load', _ => {
+    img.offsetWidth;
+
+    // Step #5 of the "Parsing a sizes attribute" spec
+    // https://html.spec.whatwg.org/#parsing-a-sizes-attribute
+    // states that:
+    // "If img is null, or img's loading attribute is not in the Lazy state,
+    // or img is not being rendered, or img's concrete object size ignoring
+    // natural dimensions width is zero, then return 100vw."
+    // Waiting for at least one frame to allow layout to finish, ensuring an
+    // accurate "img's concrete object size ignoring natural dimensions",
+    // which is used to select the currentSrc from the srcset.
+    waitForAtLeastOneFrame().then(_ => {
+      test.step(() => {
+        let got = img.currentSrc;
+        assert_greater_than(got.indexOf('?'), -1, 'expected a "?" in currentSrc');
+
+        got = got.split('?')[0];
+        assert_equals(got, expect);
+      });
+
+      test.done();
     });
-    t.step(() => {
-      let got = img.currentSrc;
-      assert_greater_than(got.indexOf('?'), -1, 'expected a "?" in currentSrc');
-      got = got.split('?')[0];
-      assert_equals(got, expect);
-    })
-  }, imgOrPicture.outerHTML);
+  });
 }
 
 const tests = [
