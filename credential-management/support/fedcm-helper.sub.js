@@ -78,6 +78,26 @@ export function request_options_with_mediation_optional(manifest_filename) {
   return options;
 }
 
+export function request_options_with_context(manifest_filename, context) {
+  if (manifest_filename === undefined) {
+    manifest_filename = "manifest.py";
+  }
+  const manifest_path = `https://{{host}}:{{ports[https][0]}}/\
+credential-management/support/fedcm/${manifest_filename}`;
+  return {
+    identity: {
+      providers: [{
+        configURL: manifest_path,
+        clientId: '1',
+        nonce: '2'
+      }],
+      context: context
+    },
+    mediation: 'required'
+  };
+}
+
+
 // Test wrapper which does FedCM-specific setup.
 export function fedcm_test(test_func, test_name) {
   promise_test(async t => {
